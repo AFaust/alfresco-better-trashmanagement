@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.acosix.alfresco.maven</groupId>
+        <artifactId>de.acosix.alfresco.maven.module.parent</artifactId>
+        <version>1.0.0.2</version>
+    </parent>
+
+    <groupId>de.axelfaust.alfresco.trash.management</groupId>
+    <artifactId>de.acosix.alfresco.trash.management</artifactId>
+    <version>1.0.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Alfresco Better Trash Management</name>
+    <description>Addon to provide a better trash management experience as in out-of-the-box Alfresco</description>
+    <url>https://github.com/AFaust/alfresco-better-trashmanagement</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:AFaust/alfresco-better-trashmanagement.git</connection>
+        <developerConnection>scm:git:git@github.com:AFaust/alfresco-better-trashmanagement.git</developerConnection>
+        <url>git@github.com:AFaust/alfresco-better-trashmanagement.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>AFaust</id>
+            <name>Axel Faust</name>
+            <email>axel.faust@acosix.de</email>
+            <organization>Acosix GmbH</organization>
+            <roles>
+                <role>Founder</role>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <properties>
+                <twitter>twitter.com/ReluctantBird83</twitter>
+            </properties>
+        </developer>
+    </developers>
+
+    <properties>
+        <messages.path>better-trashmanagement</messages.path>
+        <messages.packageId>better-trashmanagement</messages.packageId>
+        <moduleId>better-trashmanagement</moduleId>
+
+        <alfresco.distribution.version>5.2.g</alfresco.distribution.version>
+        <share.distribution.version>5.2.f</share.distribution.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.alfresco</groupId>
+                <artifactId>share</artifactId>
+                <classifier>classes</classifier>
+                <version>${share.distribution.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+
+    </build>
+
+    <modules>
+        <module>repository</module>
+        <module>share</module>
+    </modules>
+</project>
