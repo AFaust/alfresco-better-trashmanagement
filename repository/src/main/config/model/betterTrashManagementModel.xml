@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- xsi:schemaLocation="http://www.alfresco.org/model/dictionary/1.0 modelSchema.xsd" -->
+<model name="btmm:betterTrashManagementModel" xmlns="http://www.alfresco.org/model/dictionary/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <description>Better Trash Management Model</description>
+    <version>1.0</version>
+
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://axelfaust.de/model/beterTrashManagement/1.0" prefix="btmm" />
+    </namespaces>
+
+    <constraints>
+
+    </constraints>
+
+    <types>
+
+    </types>
+
+    <aspects>
+
+        <aspect name="btmm:userReadAccessGranted">
+            <properties>
+                <property name="btmm:readAccessGrantedTo">
+                    <type>d:text</type>
+                    <protected>true</protected>
+                    <index enabled="false" />
+                </property>
+            </properties>
+        </aspect>
+
+    </aspects>
+</model>

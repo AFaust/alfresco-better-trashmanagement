@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="${moduleId}-behaviour-UserTrashContainer" class="${project.artifactId}.behaviour.UserTrashContainer" depends-on="${moduleId}-dictionaryBootstrap">
+        <property name="policyComponent" ref="policyComponent" />
+        <!-- considered system-internal functionality, so use private beans to avoid security / AOP overhead -->
+        <property name="nodeService" ref="nodeService" />
+        <property name="nodeArchiveService" ref="nodeArchiveService" />
+        <property name="permissionService" ref="permissionService" />
+    </bean>
+
+</beans>
