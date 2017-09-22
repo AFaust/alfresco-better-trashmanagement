@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsQuery.get" class="${project.artifactId}.web.scripts.ArchivedItemsQueryGet"
+        parent="webscript">
+        <property name="namespaceService" ref="NamespaceService" />
+        <property name="nodeService" ref="NodeService" />
+        <!-- Sorry, no public bean for you -->
+        <property name="nodeArchiveService" ref="nodeArchiveService" />
+        <property name="searchService" ref="SearchService" />
+    </bean>
+</beans>

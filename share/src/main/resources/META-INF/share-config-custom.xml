@@ -1,4 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <alfresco-config>
 
+    <config evaluator="string-compare" condition="WebFramework">
+        <web-framework>
+            <dojo-pages>
+                <packages>
+                    <package name="better-trash-management" location="better-trash-management" />
+                </packages>
+            </dojo-pages>
+        </web-framework>
+    </config>
+
 </alfresco-config>

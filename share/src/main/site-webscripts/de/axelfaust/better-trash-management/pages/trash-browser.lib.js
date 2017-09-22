@@ -4,6 +4,12 @@ function augmentServices(services)
     var idx, requiredServices, service;
 
     requiredServices = {
+        'better-trash-management/services/TrashManagementService' : true,
+        'alfresco/services/NodePreviewService' : true,
+        'alfresco/services/LightboxService' : true,
+        'alfresco/services/DialogService' : true,
+        // needed for some lazy loading of data (some service expect data in weird/complex structures that we don't provide
+        // we would have the data, but there is no way to configure services / widgets to use our data, and transforming is out of the question
         'alfresco/services/DocumentService' : true
     };
 
@@ -68,12 +74,10 @@ function buildMainPanel()
                     } ]
                 }
             }, {
-                name : 'alfresco/documentlibrary/AlfDocumentList',
+                name : 'alfresco/lists/AlfFilteredList',
                 config : {
-                    // reloadDataTopic : 'RELOAD_TRASH_ITEMS',
-                    rawData : false,
-                    nodeRef : 'archive://SpacesStore/57928a6b-fe20-46e4-a032-554de9c9d586',
-                    // loadDataPublishTopic : 'dummy', // TODO Set service topic
+                    reloadDataTopic : 'RELOAD_TRASH_ITEMS',
+                    loadDataPublishTopic : 'BETTER_TRASH_MANAGEMENT_QUERY_ARCHIVED_ITEMS',
                     loadDataPublishPayload : {
                     // TODO Fill with whatever the service needs
                     },
@@ -86,7 +90,7 @@ function buildMainPanel()
                             // TODO Report enhancement - simple width customisation
                             style : 'vertical-align:top;',
                             fieldId : 'ITEM_NAME',
-                            name : 'itemName',
+                            name : 'name',
                             label : 'trash-browser.filter.itemName.label',
                             placeHolder : 'trash-browser.filter.itemName.placeHolder'
                         }
@@ -106,7 +110,7 @@ function buildMainPanel()
                     currentPageSize : 20,
                     itemsProperty : 'items', // TODO Set to whatever we get back from a service
                     widgets : [ {
-                        name : 'alfresco/documentlibrary/views/AlfSimpleView',
+                        name : 'alfresco/lists/views/AlfListView',
                         config : {
                             additionalCssClasses : 'bordered',
                             widgetsForHeader : [],
@@ -135,7 +139,12 @@ function buildMainPanel()
                                             widgets : [ {
                                                 name : 'alfresco/renderers/Thumbnail',
                                                 config : {
+                                                    itemKey : 'nodeRef',
+                                                    imageTitleProperty : 'name',
+                                                    lastThumbnailModificationProperty : 'properties.cm:lastThumbnailModification',
+                                                    renditionName : 'doclib',
                                                     showDocumentPreview : true,
+                                                    usePreviewService : true,
                                                     publishGlobal : false,
                                                     publishToParent : false
                                                 }
@@ -152,7 +161,7 @@ function buildMainPanel()
                                             widgets : [ {
                                                 name : 'alfresco/renderers/Property',
                                                 config : {
-                                                    propertyToRender : 'node.properties.cm:name',
+                                                    propertyToRender : 'properties.cm:name',
                                                     renderSize : 'medium'
                                                 }
                                             } ]

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<webscript>
+    <shortname>Archived Items Query</shortname>
+    <description>Queries archived items</description>
+    <url>/api/better-trash-management/archivedItems</url>
+    <family>Better Trash Management</family>
+    <format default="json" />
+    <authentication>user</authentication>
+    <lifecycle>internal</lifecycle>
+    <transaction allow="readonly">required</transaction>
+</webscript>
