@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<webscript>
+    <shortname>Better Trash Management Full Page</shortname>
+    <description>This WebScript is used by the "btmm-template-type" and is used to create the template for rendering an entire page of
+        Dojo-based widgets
+    </description>
+    <url>/templates/better-trash-management/full-page</url>
+    <family>Better Trash Management</family>
+</webscript>
