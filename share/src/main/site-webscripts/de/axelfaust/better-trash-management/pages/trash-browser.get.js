@@ -9,7 +9,8 @@ function main()
     services = getHeaderServices();
     widgets = getHeaderModel(msg.get('better-trash-management.trash-browser.page.title'));
 
-    // TODO Enhance model with services + widgets we need (call into *.lib.js)
+    augmentServices(services);
+    widgets.push(buildMainPanel());
     
     model.jsonModel = getFooterModel(services, widgets);
     model.jsonModel.groupMemberships = user.properties.alfUserGroups;
