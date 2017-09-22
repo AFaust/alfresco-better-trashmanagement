@@ -1,3 +1,4 @@
+/* exported augmentServices */
 function augmentServices(services)
 {
     var idx, requiredServices, service;
@@ -33,6 +34,7 @@ function augmentServices(services)
     }
 }
 
+/* exported buildMainPanel */
 function buildMainPanel()
 {
     var model;
