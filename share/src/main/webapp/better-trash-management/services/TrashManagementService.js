@@ -52,6 +52,7 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                                 case 'archivedByUser':
                                 case 'baseStore':
                                 case 'filterQuery':
+                                case 'topLevel':
                                     urlUtils.addQueryParameter(url, filter.name, filter.value);
                                     processedFilters[filter.name] = true;
                                     break;

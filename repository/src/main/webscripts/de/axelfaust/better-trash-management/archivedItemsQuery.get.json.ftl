@@ -3,35 +3,42 @@
     "startIndex" : ${pagination.startIndex?c},
     "totalRecords" : ${pagination.totalRecords?c},
     "numberFound" : ${pagination.numberFound?c},
-    "items": [<#list results as item>
+    "items": [<#list results as resultItem>
         {
+            <#assign node = resultItem.node />
             <#assign version = "1.0">
-            <#if item.hasAspect("cm:versionable")><#assign version = item.properties["cm:versionLabel"]!""></#if>
+            <#if node.hasAspect("cm:versionable")><#assign version = node.properties["cm:versionLabel"]!""></#if>
             
-            "nodeRef": "${item.nodeRef}",
-            "name": "${item.name}",
-            "nodeType": "${item.type}",
-            "nodeTypeShort": "${shortQName(item.type)}",
+            "nodeRef": "${node.nodeRef}",
+            "name": "${node.name}",
+            "nodeType": "${node.type}",
+            "nodeTypeShort": "${shortQName(node.type)}",
             <#-- simple type - UI in some parts does hard-coded value comparisons -->
-            "type": "${item.isContainer?string('folder', item.isDocument?string('document', 'node'))}",
+            "type": "${node.isContainer?string('folder', node.isDocument?string('document', 'node'))}",
             "version": "${version}",
-            <#if item.isDocument>
-                "mimetype": "${item.mimetype!""}",
-                "size": ${item.size?c},
-                "contentUrl": "api/node/content/${item.storeType}/${item.storeId}/${item.id}/${item.name?url}",
+            <#if node.isDocument>
+                "mimetype": "${node.mimetype!""}",
+                "size": ${node.size?c},
+                "contentUrl": "api/node/content/${node.storeType}/${node.storeId}/${node.id}/${node.name?url}",
             </#if>
+            "modified": "${xmldate(node.properties.modified)}",
+            "modifier": "${node.properties.modifier}",
+            "modifierDisplayName": "${resultItem.modifier.displayName!""}",
+            "archived": "${xmldate(resultItem.archivedOn)}",
+            "archiver": "${resultItem.archiver.userName}",
+            "archiverDisplayName": "${resultItem.archiver.displayName!""}",
             "properties": {
                 <#assign lastRendered = false />
-                <#list item.properties?keys as key>
-                    <#if item.properties[key]??><#if lastRendered == true>,</#if>
-                        "${shortQName(key)}" : <@renderProperty key item.properties[key] />
+                <#list node.properties?keys as key>
+                    <#if node.properties[key]??><#if lastRendered == true>,</#if>
+                        "${shortQName(key)}" : <@renderProperty key node.properties[key] />
                     <#assign lastRendered = true />
                 <#else>
                     <#assign lastRendered = false />
                 </#if>
            </#list>
             }
-        }<#if item_has_next>,</#if>
+        }<#if resultItem_has_next>,</#if>
     </#list>]
 }
 </#escape></#compress>

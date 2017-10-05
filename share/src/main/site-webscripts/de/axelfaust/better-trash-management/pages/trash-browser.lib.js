@@ -3,13 +3,17 @@ function augmentServices(services)
 {
     var idx, requiredServices, service;
 
+    // track services we need to add (currently none of the services need specific configuration options)
     requiredServices = {
         'better-trash-management/services/TrashManagementService' : true,
         'alfresco/services/NodePreviewService' : true,
         'alfresco/services/LightboxService' : true,
         'alfresco/services/DialogService' : true,
         // needed for some lazy loading of data (some service expect data in weird/complex structures that we don't provide
-        // we would have the data, but there is no way to configure services / widgets to use our data, and transforming is out of the question
+        // we would have the data, but there is no way to configure services / widgets to use our data, and transforming is out of the
+        // question
+        // example: alfresco/renderers/Thumbnail doing a hard-coded ALF_RETRIEVE_SINGLE_DOCUMENT_REQUEST if currentItem does not provide
+        // type/mimetype via hard-coded object paths
         'alfresco/services/DocumentService' : true
     };
 
@@ -82,7 +86,7 @@ function buildMainPanel()
                     // TODO Fill with whatever the service needs
                     },
                     // TODO Report enhancement - filtering should not require these form topic cludges
-                    filteringTopics : [ '_valueChangeOf_ITEM_NAME', '_valueChangeOf_KEYWORDS' ],
+                    filteringTopics : [ '_valueChangeOf_ITEM_NAME', '_valueChangeOf_KEYWORDS', '_valueChangeOf_TOP_LEVEL' ],
                     widgetsForFilters : [ {
                         name : 'alfresco/forms/controls/TextBox',
                         config : {
@@ -104,6 +108,16 @@ function buildMainPanel()
                             name : 'keywords',
                             label : 'trash-browser.filter.keywords.label',
                             placeHolder : 'trash-browser.filter.keywords.placeHolder'
+                        }
+                    }, {
+                        name : 'alfresco/forms/controls/CheckBox',
+                        config : {
+                            // TODO Report enhancement - filter widgets should align properly
+                            // TODO Report enhancement - simple width customisation
+                            style : 'vertical-align:top;',
+                            fieldId : 'TOP_LEVEL',
+                            name : 'topLevel',
+                            label : 'trash-browser.filter.topLevel.label'
                         }
                     } ],
                     usePagination : true,
@@ -159,10 +173,46 @@ function buildMainPanel()
                                             // items
                                             additionalCssClasses : 'smallpad',
                                             widgets : [ {
-                                                name : 'alfresco/renderers/Property',
+                                                name : 'alfresco/core/ProcessWidgets',
                                                 config : {
-                                                    propertyToRender : 'properties.cm:name',
-                                                    renderSize : 'medium'
+                                                    widgets : [ {
+                                                        name : 'alfresco/renderers/Property',
+                                                        config : {
+                                                            propertyToRender : 'properties.cm:name',
+                                                            renderSize : 'medium'
+                                                        }
+                                                    }, {
+                                                        name : 'alfresco/renderers/Property',
+                                                        config : {
+                                                            // TODO Define (dynamic) CSS class
+                                                            style: 'margin-left: 2ex;',
+                                                            propertyToRender : 'properties.cm:title',
+                                                            renderSize : 'medium',
+                                                            renderedValuePrefix : '(',
+                                                            renderedValueSuffix : ')',
+                                                            renderFilter : [ {
+                                                                property : 'properties.cm:title',
+                                                                renderOnAbsentProperty : false,
+                                                                values : [ '' ],
+                                                                negate : true
+                                                            } ]
+                                                        }
+                                                    }, {
+                                                        name : "alfresco/renderers/Date",
+                                                        config : {
+                                                            renderOnNewLine : true,
+                                                            modifiedDateProperty : 'modified',
+                                                            modifiedByProperty : 'modifierDisplayName'
+                                                        }
+                                                    }, {
+                                                        name : "alfresco/renderers/Date",
+                                                        config : {
+                                                            renderOnNewLine : true,
+                                                            modifiedDateProperty : 'archived',
+                                                            modifiedByProperty : 'archiverDisplayName',
+                                                            modifiedByMessage : 'details.archived-by'
+                                                        }
+                                                    } ]
                                                 }
                                             } ]
                                         }
@@ -184,7 +234,10 @@ function buildMainPanel()
                                 }
                             } ]
                         }
-                    } ]
+                    } ],
+                    // TODO Report enhancement - layout of AlfList (and sub-modules) should allow for consistent padding to stop views
+                    // clinging to the edge while not forcing i.e. filter form to have an even larger inset than by default
+                    style : 'padding: 0 10px;'
                 }
             } ]
         }

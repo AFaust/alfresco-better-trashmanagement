@@ -10,6 +10,7 @@
         <property name="nodeService" ref="NodeService" />
         <!-- Sorry, no public bean for you -->
         <property name="nodeArchiveService" ref="nodeArchiveService" />
+        <property name="personService" ref="PersonService" />
         <property name="searchService" ref="SearchService" />
     </bean>
 </beans>
