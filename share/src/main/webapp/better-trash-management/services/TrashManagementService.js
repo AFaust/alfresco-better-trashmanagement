@@ -26,18 +26,28 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
 
                     if (payload.pageSize)
                     {
-                        url = urlUtils.addQueryParameter(url, 'pageSize', payload.pageSize);
+                        url = urlUtils.addQueryParameter(url, 'pageSize', payload.pageSize, true);
                     }
 
                     if (payload.page)
                     {
-                        url = urlUtils.addQueryParameter(url, 'page', payload.page);
+                        url = urlUtils.addQueryParameter(url, 'page', payload.page, true);
                     }
 
                     if (payload.page && payload.pageSize)
                     {
                         var startIndex = (payload.page - 1) * payload.pageSize;
-                        url = urlUtils.addQueryParameter(url, 'startIndex', startIndex);
+                        url = urlUtils.addQueryParameter(url, 'startIndex', startIndex, true);
+                    }
+
+                    if (payload.defaultOperator)
+                    {
+                        url = urlUtils.addQueryParameter(url, 'defaultOperator', payload.defaultOperator, true);
+                    }
+
+                    if (payload.defaultQueryTemplate)
+                    {
+                        url = urlUtils.addQueryParameter(url, 'defaultQueryTemplate', payload.defaultQueryTemplate, true);
                     }
 
                     processedFilters = {};
@@ -46,6 +56,8 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                         // support our specific filters (only)
                         array.forEach(payload.dataFilters, function(filter)
                         {
+                            var dateFragments;
+
                             switch (filter.name)
                             {
                                 case 'name':
@@ -53,16 +65,28 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                                 case 'baseStore':
                                 case 'filterQuery':
                                 case 'topLevel':
-                                    urlUtils.addQueryParameter(url, filter.name, filter.value);
+                                    url = urlUtils.addQueryParameter(url, filter.name, filter.value, true);
+                                    processedFilters[filter.name] = true;
+                                    break;
+                                case 'archiveDate':
+                                    dateFragments = filter.value.split('|');
+                                    if (dateFragments[0] !== undefined && dateFragments[0] !== null && dateFragments[0] !== '')
+                                    {
+                                        url = urlUtils.addQueryParameter(url, 'archiveDateFrom', dateFragments[0], true);
+                                    }
+                                    if (dateFragments[1] !== undefined && dateFragments[1] !== null && dateFragments[1] !== '')
+                                    {
+                                        url = urlUtils.addQueryParameter(url, 'archiveDateTo', dateFragments[1], true);
+                                    }
                                     processedFilters[filter.name] = true;
                                     break;
                             }
                         });
                     }
-                    
+
                     if (!processedFilters.hasOwnProperty('baseStore'))
                     {
-                        urlUtils.addQueryParameter(url, 'baseStore', 'workspace://SpacesStore');
+                        url = urlUtils.addQueryParameter(url, 'baseStore', 'workspace://SpacesStore', true);
                     }
 
                     config = {

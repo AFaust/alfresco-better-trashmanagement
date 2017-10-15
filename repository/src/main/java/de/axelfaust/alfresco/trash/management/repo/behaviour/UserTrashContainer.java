@@ -167,7 +167,7 @@ public class UserTrashContainer implements InitializingBean, OnRestoreNodePolicy
                 }
                 else
                 {
-                    LOGGER.warn("Node {} know to have been archived in current txn does not exist", archivedNode);
+                    LOGGER.warn("Node {} known to have been archived in current txn does not exist", archivedNode);
                 }
             }
             else
