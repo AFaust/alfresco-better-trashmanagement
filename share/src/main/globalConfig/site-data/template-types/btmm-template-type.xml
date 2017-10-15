@@ -5,6 +5,6 @@
     <family>Better Trash Management</family>
     <processor mode="view">
         <id>webscript</id>
-        <url>/templates/better-trash-management/full-page</url>
+        <uri>/templates/better-trash-management/full-page</uri>
     </processor>
 </template-type>
