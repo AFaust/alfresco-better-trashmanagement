@@ -27,6 +27,7 @@
             "archived": "${xmldate(resultItem.archivedOn)}",
             "archiver": "${resultItem.archiver.userName}",
             "archiverDisplayName": "${resultItem.archiver.displayName!""}",
+            "displayPath": "${resultItem.displayPath!""}",
             "properties": {
                 <#assign lastRendered = false />
                 <#list node.properties?keys as key>

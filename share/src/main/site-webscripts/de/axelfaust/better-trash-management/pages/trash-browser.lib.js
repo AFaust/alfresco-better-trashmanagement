@@ -75,8 +75,17 @@ function buildSearchPanel()
                                     label : 'trash-browser.paginator.selected-items.label',
                                     passive : false,
                                     itemKeyProperty : 'nodeRef',
+                                    processActionPayloads: true,
                                     widgets : [
-                                    // TODO bulk actions
+                                    	{
+                                            name: "alfresco/menus/AlfSelectedItemsMenuItem",
+                                            config: {
+                                              label: "trash-browser.paginator.selected-items.delete.label",
+                                              publishTopic: "BETTER_TRASH_MANAGEMENT_DELETE_ARCHIVED_ITEMS",
+                                              publishGlobal : true,
+                                              publishPayload: {}
+                                            }
+                                        }
                                     ]
                                 }
                             } ]
@@ -289,7 +298,21 @@ function buildSearchPanel()
                                                                     // dropping some options and adding some non-suppressable ones)
                                                                     customActions : []
                                                                 }
-                                                            } ]
+                                                            }, {
+                                                                name : 'alfresco/renderers/Property',
+                                                                config : {
+                                                                    // TODO Define (dynamic) CSS class
+                                                                    propertyToRender : 'displayPath',
+                                                                    renderSize : 'medium',
+                                                                    label : 'trash-browser.deleted-from',
+                                                                    renderFilter : [ {
+                                                                        property : 'displayPath',
+                                                                        renderOnAbsentProperty : false,
+                                                                        values : [ '' ],
+                                                                        negate : true
+                                                                    } ]
+                                                                }
+                                                            }, ]
                                                         }
                                                     } ]
                                         }

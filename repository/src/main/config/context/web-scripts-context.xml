@@ -12,6 +12,7 @@
         <property name="nodeArchiveService" ref="nodeArchiveService" />
         <property name="personService" ref="PersonService" />
         <property name="searchService" ref="SearchService" />
+        <property name="permissionService" ref="PermissionService" />
     </bean>
     
     <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsChildren.get" class="${project.artifactId}.web.scripts.ArchivedItemsChildrenGet"
@@ -20,4 +21,7 @@
         <property name="personService" ref="PersonService" />
         <property name="searchService" ref="SearchService" />
     </bean>
+
+    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsDelete.post" class="${project.artifactId}.web.scripts.ArchivedItemsDelete"
+        parent="baseArchivedNodeWebScript" />
 </beans>
