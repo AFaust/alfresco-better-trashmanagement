@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<webscript>
+    <shortname>Archived Items Delete</shortname>
+    <description>Deletes archived items</description>
+    <url>/api/better-trash-management/archivedItems/bulkDelete</url>
+    <family>Better Trash Management</family>
+    <format default="json" />
+    <authentication>user</authentication>
+    <lifecycle>internal</lifecycle>
+    <transaction allow="readwrite">required</transaction>
+</webscript>

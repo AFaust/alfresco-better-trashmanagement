@@ -37,9 +37,12 @@ import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchParameters.Operator;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.PathUtil;
 import org.alfresco.util.PropertyCheck;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.extensions.webscripts.Cache;
@@ -86,6 +89,8 @@ public class ArchivedItemsQueryGet extends DeclarativeWebScript implements Initi
     protected PersonService personService;
 
     protected SearchService searchService;
+    
+    protected PermissionService permissionService;
 
     /**
      *
@@ -99,6 +104,7 @@ public class ArchivedItemsQueryGet extends DeclarativeWebScript implements Initi
         PropertyCheck.mandatory(this, "nodeArchiveService", this.nodeArchiveService);
         PropertyCheck.mandatory(this, "personService", this.personService);
         PropertyCheck.mandatory(this, "searchService", this.searchService);
+        PropertyCheck.mandatory(this, "permissionService", this.permissionService);
     }
 
     /**
@@ -144,6 +150,15 @@ public class ArchivedItemsQueryGet extends DeclarativeWebScript implements Initi
     public void setSearchService(final SearchService searchService)
     {
         this.searchService = searchService;
+    }
+    
+    /**
+     * @param permissionService
+     *            the permissionService to set
+     */
+    public void setPermissionService(final PermissionService permissionService)
+    {
+        this.permissionService = permissionService;
     }
 
     /**
@@ -361,12 +376,25 @@ public class ArchivedItemsQueryGet extends DeclarativeWebScript implements Initi
                 archiverObj = this.buildUserObject(modifier);
                 userObjByUserName.put(archiver, archiverObj);
             }
+            
+            String displayPath;
+            ChildAssociationRef originalParentAssoc = (ChildAssociationRef) resultProperties.get(ContentModel.PROP_ARCHIVED_ORIGINAL_PARENT_ASSOC);
+            if (permissionService.hasPermission(originalParentAssoc.getParentRef(), PermissionService.READ).equals(AccessStatus.ALLOWED)
+                    && nodeService.exists(originalParentAssoc.getParentRef()))
+            {
+               displayPath = PathUtil.getDisplayPath(nodeService.getPath(originalParentAssoc.getParentRef()), true);
+            }
+            else
+            {
+            	displayPath = "";
+            }
 
             final Map<String, Object> itemObj = new HashMap<>();
             itemObj.put("modifier", modifierObj);
             itemObj.put("archiver", archiverObj);
             itemObj.put("archivedOn", archivedOn);
             itemObj.put("node", result);
+            itemObj.put("displayPath", displayPath);
             results.add(itemObj);
         });
         return results;

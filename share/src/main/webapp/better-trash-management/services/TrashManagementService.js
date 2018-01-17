@@ -16,12 +16,15 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                 browseArchivedItemsTopic : 'BETTER_TRASH_MANAGEMENT_BROWSE_ARCHIVED_ITEMS',
 
                 queryArchivedItemsTopic : 'BETTER_TRASH_MANAGEMENT_QUERY_ARCHIVED_ITEMS',
+                
+                deleteArchivedItemsTopic : 'BETTER_TRASH_MANAGEMENT_DELETE_ARCHIVED_ITEMS',
 
                 registerSubscriptions : function betterTrashManagement_service_TrashManagementService__registerSubscriptions()
                 {
                     this.alfSubscribe(this.pubChainTopic, lang.hitch(this, this.onPublishChain));
                     this.alfSubscribe(this.browseArchivedItemsTopic, lang.hitch(this, this.onBrowseArchivedItems));
                     this.alfSubscribe(this.queryArchivedItemsTopic, lang.hitch(this, this.onQueryArchivedItems));
+                    this.alfSubscribe(this.deleteArchivedItemsTopic, lang.hitch(this, this.onDeleteArchivedItems));
                 },
 
                 // TODO There should be a standard way to have a publication composed of multiple topics + payloads
@@ -167,6 +170,24 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                         requestScope : payload.alfResponseScope,
                         alfTopic : payload.alfResponseTopic || this.queryArchivedItemsTopic,
                         method : 'GET'
+                    };
+
+                    this.serviceXhr(config);
+                },
+                
+                onDeleteArchivedItems : function betterTrashManagement_service_TrashManagementService__onDeleteArchivedItems(payload)
+                {
+                    var url, config;
+
+                    url = Constants.PROXY_URI + 'api/better-trash-management/archivedItems/bulkDelete';
+                    
+                    config = {
+                        preventCache : true,
+                        url : url,
+                        data: payload.selectedItems,
+                        requestScope : payload.alfResponseScope,
+                        alfTopic : payload.alfResponseTopic || null,
+                        method : 'POST'
                     };
 
                     this.serviceXhr(config);
