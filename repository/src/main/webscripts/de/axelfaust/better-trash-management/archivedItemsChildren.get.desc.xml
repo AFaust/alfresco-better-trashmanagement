@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<webscript>
+    <shortname>Archived Items Children</shortname>
+    <description>Retrieves the children of an archived item</description>
+    <url>/api/better-trash-management/{storeProtocol}/{storeIdentifier}/{uuid}/children</url>
+    <family>Better Trash Management</family>
+    <format default="json" />
+    <authentication>user</authentication>
+    <lifecycle>internal</lifecycle>
+    <transaction allow="readonly">required</transaction>
+</webscript>

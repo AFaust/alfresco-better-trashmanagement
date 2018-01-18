@@ -13,4 +13,11 @@
         <property name="personService" ref="PersonService" />
         <property name="searchService" ref="SearchService" />
     </bean>
+    
+    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsChildren.get" class="${project.artifactId}.web.scripts.ArchivedItemsChildrenGet"
+        parent="webscript">
+        <property name="nodeService" ref="NodeService" />
+        <property name="personService" ref="PersonService" />
+        <property name="searchService" ref="SearchService" />
+    </bean>
 </beans>
