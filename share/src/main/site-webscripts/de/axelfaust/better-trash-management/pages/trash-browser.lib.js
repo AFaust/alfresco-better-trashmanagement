@@ -44,26 +44,29 @@ function augmentServices(services)
     }
 }
 
-/* exported buildMainPanel */
-function buildMainPanel()
+function buildSearchPanel()
 {
     var model;
 
     model = {
+        id : 'BTTM_SEARCH',
         name : 'alfresco/core/ProcessWidgets',
         config : {
-            pubSubScope : 'TRASH_ITEM_LIST/',
+            pubSubScope : 'TRASH_SEARCH_LIST/',
             widgets : [
                     {
+                        id : 'BTTM_SEARCH_LIST_PAGINATOR',
                         name : 'alfresco/lists/Paginator',
                         config : {
                             documentsPerPage : 20,
                             pageSizes : [ 20, 50, 100 ],
                             style : 'text-align:center;',
                             widgetsBefore : [ {
+                                id : 'BTTM_SEARCH_LIST_PAGINATOR_BULK_SELECTOR',
                                 name : 'alfresco/documentlibrary/AlfSelectDocumentListItems'
                             } ],
                             widgetsAfter : [ {
+                                id : 'BTTM_SEARCH_LIST_PAGINATOR_SELECTED_ITEMS',
                                 name : 'alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup',
                                 config : {
                                     // can't believe "selected-items.label" is not a global label
@@ -80,6 +83,7 @@ function buildMainPanel()
                         }
                     },
                     {
+                        id : 'BTTM_SEARCH_LIST',
                         name : 'alfresco/lists/AlfFilteredList',
                         config : {
                             reloadDataTopic : 'RELOAD_TRASH_ITEMS',
@@ -93,6 +97,7 @@ function buildMainPanel()
                             filteringTopics : [ '_valueChangeOf_ITEM_NAME', '_valueChangeOf_KEYWORDS', '_valueChangeOf_ARCHIVE_DATE',
                                     '_valueChangeOf_TOP_LEVEL' ],
                             widgetsForFilters : [ {
+                                id : 'BTTM_SEARCH_LIST_NAME_FILTER_INPUT',
                                 name : 'alfresco/forms/controls/TextBox',
                                 config : {
                                     // TODO Report enhancement - filter widgets should align properly
@@ -104,6 +109,7 @@ function buildMainPanel()
                                     placeHolder : 'trash-browser.filter.itemName.placeHolder'
                                 }
                             }, {
+                                id : 'BTTM_SEARCH_LIST_KEYWORDS_FILTER_INPUT',
                                 name : 'alfresco/forms/controls/TextBox',
                                 config : {
                                     // TODO Report enhancement - filter widgets should align properly
@@ -115,10 +121,12 @@ function buildMainPanel()
                                     placeHolder : 'trash-browser.filter.keywords.placeHolder'
                                 }
                             }, {
+                                id : 'BTTM_SEARCH_LIST_ARCHIVE_DATE_FILTER_INPUT',
                                 name : 'better-trash-management/forms/controls/DateRange',
                                 config : {
                                     // TODO Report enhancement - filter widgets should align properly
-                                    // TODO Report enhancement - allow configuration option in base DateRange widget to allow open-ended ranges
+                                    // TODO Report enhancement - allow configuration option in base DateRange widget to allow open-ended
+                                    // ranges
                                     // TODO Report bug - change of "from" value does not trigger pubSub in base DateRange widget
                                     style : 'vertical-align:top;',
                                     fieldId : 'ARCHIVE_DATE',
@@ -127,6 +135,7 @@ function buildMainPanel()
                                     allowOpenEndDateRange : true
                                 }
                             }, {
+                                id : 'BTTM_SEARCH_LIST_TOP_LEVEL_FILTER_INPUT',
                                 name : 'alfresco/forms/controls/CheckBox',
                                 config : {
                                     // TODO Report enhancement - filter widgets should align properly
@@ -140,116 +149,149 @@ function buildMainPanel()
                             currentPageSize : 20,
                             itemsProperty : 'items', // TODO Set to whatever we get back from a service
                             widgets : [ {
+                                id : 'BTTM_SEARCH_LIST_VIEW',
                                 name : 'alfresco/lists/views/AlfListView',
                                 config : {
                                     additionalCssClasses : 'bordered',
                                     widgetsForHeader : [],
                                     widgets : [ {
+                                        id : 'BTTM_SEARCH_LIST_VIEW_ROW',
                                         name : 'alfresco/lists/views/layouts/Row',
                                         config : {
                                             // TODO Report bug - property zebraStriping without effect
                                             additionalCssClasses : 'zebra-striping',
                                             // TODO Report enhancement - simple CellProperty widget
                                             // TODO Report enhancement - support of expanded (alternative) value as tooltip / mouseover
-                                            widgets : [ {
-                                                name : 'alfresco/lists/views/layouts/Cell',
-                                                config : {
-                                                    additionalCssClasses : 'smallpad',
-                                                    widgets : [ {
-                                                        name : 'alfresco/renderers/Selector',
-                                                        itemKey : 'nodeRef',
-                                                        publishGlobal : false,
-                                                        publishToParent : false
-                                                    } ]
-                                                }
-                                            }, {
-                                                name : 'alfresco/lists/views/layouts/Cell',
-                                                config : {
-                                                    additionalCssClasses : 'smallpad',
-                                                    widgets : [ {
-                                                        name : 'alfresco/renderers/Thumbnail',
+                                            widgets : [
+                                                    {
+                                                        id : 'BTTM_SEARCH_LIST_SELECTOR_CELL',
+                                                        name : 'alfresco/lists/views/layouts/Cell',
                                                         config : {
-                                                            itemKey : 'nodeRef',
-                                                            imageTitleProperty : 'name',
-                                                            lastThumbnailModificationProperty : 'properties.cm:lastThumbnailModification',
-                                                            renditionName : 'doclib',
-                                                            showDocumentPreview : true,
-                                                            usePreviewService : true,
-                                                            publishGlobal : false,
-                                                            publishToParent : false
+                                                            additionalCssClasses : 'smallpad',
+                                                            widgets : [ {
+                                                                name : 'alfresco/renderers/Selector',
+                                                                itemKey : 'nodeRef',
+                                                                publishGlobal : false,
+                                                                publishToParent : false
+                                                            } ]
                                                         }
-                                                    } ]
-                                                }
-                                            }, {
-                                                name : 'alfresco/lists/views/layouts/Cell',
-                                                config : {
-                                                    // TODO Expand cell into a document library-like details view
-                                                    // TODO Consider how people might be able to customise view for different types of
-                                                    // archived
-                                                    // items
-                                                    additionalCssClasses : 'smallpad',
-                                                    widgets : [ {
-                                                        name : 'alfresco/core/ProcessWidgets',
+                                                    },
+                                                    {
+                                                        id : 'BTTM_SEARCH_LIST_THUMBNAIL_CELL',
+                                                        name : 'alfresco/lists/views/layouts/Cell',
+                                                        config : {
+                                                            additionalCssClasses : 'smallpad',
+                                                            widgets : [ {
+                                                                name : 'alfresco/renderers/Thumbnail',
+                                                                config : {
+                                                                    itemKey : 'nodeRef',
+                                                                    imageTitleProperty : 'name',
+                                                                    lastThumbnailModificationProperty : 'properties.cm:lastThumbnailModification',
+                                                                    renditionName : 'doclib',
+                                                                    showDocumentPreview : true,
+                                                                    usePreviewService : true,
+                                                                    publishGlobal : false,
+                                                                    publishToParent : false
+                                                                }
+                                                            } ]
+                                                        }
+                                                    },
+                                                    {
+                                                        id : 'BTTM_SEARCH_LIST_DETAILS_CELL',
+                                                        name : 'alfresco/lists/views/layouts/Cell',
+                                                        config : {
+                                                            // TODO Expand cell into a document library-like details view
+                                                            // TODO Consider how people might be able to customise view for different types
+                                                            // of
+                                                            // archived
+                                                            // items
+                                                            additionalCssClasses : 'smallpad',
+                                                            widgets : [ {
+                                                                id : 'BTTM_SEARCH_LIST_DETAILS_COMPOSITE',
+                                                                name : 'alfresco/core/ProcessWidgets',
+                                                                config : {
+                                                                    widgets : [
+                                                                            {
+                                                                                id : 'BTTM_SEARCH_LIST_DETAILS_NAME',
+                                                                                name : 'alfresco/renderers/PropertyLink',
+                                                                                config : {
+                                                                                    propertyToRender : 'properties.cm:name',
+                                                                                    renderSize : 'medium',
+                                                                                    publishTopic : 'BETTER_TRASH_MANAGEMENT_PUBLISH_CHAIN',
+                                                                                    publishGlobal : true,
+                                                                                    useCurrentItemAsPayload : false,
+                                                                                    publishPayload : {
+                                                                                        publications : [ {
+                                                                                            publishTopic : [ 'TRASH-BROWSER-DISABLE-TAB',
+                                                                                                    'TRASH-BROWSER-SELECT-TAB' ],
+                                                                                            publishGlobal : true,
+                                                                                            publishPayload : {
+                                                                                                value : false,
+                                                                                                id : 'BTTM_TREE'
+                                                                                            }
+                                                                                        } ]
+                                                                                    }
+                                                                                }
+                                                                            }, {
+                                                                                id : 'BTTM_SEARCH_LIST_DETAILS_TITLE',
+                                                                                name : 'alfresco/renderers/Property',
+                                                                                config : {
+                                                                                    // TODO Define (dynamic) CSS class
+                                                                                    style : 'margin-left: 2ex;',
+                                                                                    propertyToRender : 'properties.cm:title',
+                                                                                    renderSize : 'medium',
+                                                                                    renderedValuePrefix : '(',
+                                                                                    renderedValueSuffix : ')',
+                                                                                    renderFilter : [ {
+                                                                                        property : 'properties.cm:title',
+                                                                                        renderOnAbsentProperty : false,
+                                                                                        values : [ '' ],
+                                                                                        negate : true
+                                                                                    } ]
+                                                                                }
+                                                                            }, {
+                                                                                id : 'BTTM_SEARCH_LIST_DETAILS_MODIFIED_DATE',
+                                                                                name : "alfresco/renderers/Date",
+                                                                                config : {
+                                                                                    renderOnNewLine : true,
+                                                                                    modifiedDateProperty : 'modified',
+                                                                                    modifiedByProperty : 'modifierDisplayName'
+                                                                                }
+                                                                            }, {
+                                                                                id : 'BTTM_SEARCH_LIST_DETAILS_ARCHIVED_DATE',
+                                                                                name : "alfresco/renderers/Date",
+                                                                                config : {
+                                                                                    renderOnNewLine : true,
+                                                                                    modifiedDateProperty : 'archived',
+                                                                                    modifiedByProperty : 'archiverDisplayName',
+                                                                                    modifiedByMessage : 'details.archived-by'
+                                                                                }
+                                                                            } ]
+                                                                }
+                                                            } ]
+                                                        }
+                                                    }, {
+                                                        id : 'BTTM_SEARCH_LIST_ACTIONS_CELL',
+                                                        name : 'alfresco/lists/views/layouts/Cell',
                                                         config : {
                                                             widgets : [ {
-                                                                name : 'alfresco/renderers/Property',
+                                                                id : 'BTTM_SEARCH_LIST_ACTIONS',
+                                                                name : 'alfresco/renderers/Actions',
                                                                 config : {
-                                                                    propertyToRender : 'properties.cm:name',
-                                                                    renderSize : 'medium'
-                                                                }
-                                                            }, {
-                                                                name : 'alfresco/renderers/Property',
-                                                                config : {
-                                                                    // TODO Define (dynamic) CSS class
-                                                                    style : 'margin-left: 2ex;',
-                                                                    propertyToRender : 'properties.cm:title',
-                                                                    renderSize : 'medium',
-                                                                    renderedValuePrefix : '(',
-                                                                    renderedValueSuffix : ')',
-                                                                    renderFilter : [ {
-                                                                        property : 'properties.cm:title',
-                                                                        renderOnAbsentProperty : false,
-                                                                        values : [ '' ],
-                                                                        negate : true
-                                                                    } ]
-                                                                }
-                                                            }, {
-                                                                name : "alfresco/renderers/Date",
-                                                                config : {
-                                                                    renderOnNewLine : true,
-                                                                    modifiedDateProperty : 'modified',
-                                                                    modifiedByProperty : 'modifierDisplayName'
-                                                                }
-                                                            }, {
-                                                                name : "alfresco/renderers/Date",
-                                                                config : {
-                                                                    renderOnNewLine : true,
-                                                                    modifiedDateProperty : 'archived',
-                                                                    modifiedByProperty : 'archiverDisplayName',
-                                                                    modifiedByMessage : 'details.archived-by'
+                                                                    // TODO Report enhancement - make size of Actions configurable (it is
+                                                                    // frigging
+                                                                    // huge)
+                                                                    // TODO Report enhancement - Actions should allow providing custom
+                                                                    // actions like
+                                                                    // the
+                                                                    // pre-defined action widgets (currently customActions are mapped into
+                                                                    // AlfMenuItem
+                                                                    // dropping some options and adding some non-suppressable ones)
+                                                                    customActions : []
                                                                 }
                                                             } ]
                                                         }
                                                     } ]
-                                                }
-                                            }, {
-                                                name : 'alfresco/lists/views/layouts/Cell',
-                                                config : {
-                                                    widgets : [ {
-                                                        name : 'alfresco/renderers/Actions',
-                                                        config : {
-                                                            // TODO Report enhancement - make size of Actions configurable (it is frigging
-                                                            // huge)
-                                                            // TODO Report enhancement - Actions should allow providing custom actions like
-                                                            // the
-                                                            // pre-defined action widgets (currently customActions are mapped into
-                                                            // AlfMenuItem
-                                                            // dropping some options and adding some non-suppressable ones)
-                                                            customActions : []
-                                                        }
-                                                    } ]
-                                                }
-                                            } ]
                                         }
                                     } ]
                                 }
@@ -263,5 +305,216 @@ function buildMainPanel()
         }
     };
 
+    return model;
+}
+
+function buildHierarchyPanel()
+{
+    var model;
+
+    model = {
+        id : 'BTTM_TREE',
+        name : 'alfresco/core/ProcessWidgets',
+        config : {
+            pubSubScope : 'TRASH_TREE_LIST/',
+            widgets : [ {
+                id : 'BTTM_TREE_LIST_PAGINATOR',
+                name : 'alfresco/lists/Paginator',
+                config : {
+                    documentsPerPage : 20,
+                    pageSizes : [ 20, 50, 100 ],
+                    style : 'text-align:center;',
+                    widgetsBefore : [ {
+                        id : 'BTTM_TREE_LIST_PAGINATOR_BULK_SELECTOR',
+                        name : 'alfresco/documentlibrary/AlfSelectDocumentListItems'
+                    } ],
+                    widgetsAfter : [ {
+                        id : 'BTTM_TREE_LIST_PAGINATOR_SELECTED_ITEMS',
+                        name : 'alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup',
+                        config : {
+                            // can't believe "selected-items.label" is not a global label
+                            // we prefix it to not mess with any global labels others may have added
+                            // TODO Report bug / enhancement
+                            label : 'trash-browser.paginator.selected-items.label',
+                            passive : false,
+                            itemKeyProperty : 'nodeRef',
+                            widgets : [
+                            // TODO bulk actions
+                            ]
+                        }
+                    } ]
+                }
+            }, {
+                id : 'BTTM_TREE_LIST',
+                name : 'alfresco/lists/AlfFilteredList',
+                config : {
+                    reloadDataTopic : 'RELOAD_TRASH_ITEMS',
+                    // TODO
+                    loadDataPublishTopic : 'BETTER_TRASH_MANAGEMENT_BROWSE_ARCHIVED_ITEMS',
+                    loadDataPublishPayload : {
+
+                    // TODO Fill with whatever the service needs
+                    },
+                    filteringTopics : [],
+                    usePagination : true,
+                    currentPageSize : 20,
+                    itemsProperty : 'items', // TODO Set to whatever we get back from a service
+                    widgets : [ {
+                        id : 'BTTM_TREE_LIST_VIEW',
+                        name : 'alfresco/lists/views/AlfListView',
+                        config : {
+                            additionalCssClasses : 'bordered',
+                            widgetsForHeader : [],
+                            widgets : [ {
+                                id : 'BTTM_TREE_LIST_VIEW_ROW',
+                                name : 'alfresco/lists/views/layouts/Row',
+                                config : {
+                                    // TODO Report bug - property zebraStriping without effect
+                                    additionalCssClasses : 'zebra-striping',
+                                    // TODO Report enhancement - simple CellProperty widget
+                                    // TODO Report enhancement - support of expanded (alternative) value as tooltip / mouseover
+                                    widgets : [ {
+                                        id : 'BTTM_TREE_LIST_SELECTOR_CELL',
+                                        name : 'alfresco/lists/views/layouts/Cell',
+                                        config : {
+                                            additionalCssClasses : 'smallpad',
+                                            widgets : [ {
+                                                name : 'alfresco/renderers/Selector',
+                                                itemKey : 'nodeRef',
+                                                publishGlobal : false,
+                                                publishToParent : false
+                                            } ]
+                                        }
+                                    }, {
+                                        id : 'BTTM_TREE_LIST_THUMBNAIL_CELL',
+                                        name : 'alfresco/lists/views/layouts/Cell',
+                                        config : {
+                                            additionalCssClasses : 'smallpad',
+                                            widgets : [ {
+                                                name : 'alfresco/renderers/Thumbnail',
+                                                config : {
+                                                    itemKey : 'nodeRef',
+                                                    imageTitleProperty : 'name',
+                                                    lastThumbnailModificationProperty : 'properties.cm:lastThumbnailModification',
+                                                    renditionName : 'doclib',
+                                                    showDocumentPreview : true,
+                                                    usePreviewService : true,
+                                                    publishGlobal : false,
+                                                    publishToParent : false
+                                                }
+                                            } ]
+                                        }
+                                    }, {
+                                        id : 'BTTM_TREE_LIST_DETAILS_CELL',
+                                        name : 'alfresco/lists/views/layouts/Cell',
+                                        config : {
+                                            // TODO Expand cell into a document library-like details view
+                                            // TODO Consider how people might be able to customise view for different types of archived
+                                            // items
+                                            additionalCssClasses : 'smallpad',
+                                            widgets : [ {
+                                                id : 'BTTM_TREE_LIST_DETAILS_COMPOSITE',
+                                                name : 'alfresco/core/ProcessWidgets',
+                                                config : {
+                                                    widgets : [ {
+                                                        id : 'BTTM_TREE_LIST_DETAILS_NAME',
+                                                        name : 'alfresco/renderers/Property',
+                                                        config : {
+                                                            propertyToRender : 'properties.cm:name',
+                                                            renderSize : 'medium'
+                                                        }
+                                                    }, {
+                                                        id : 'BTTM_TREE_LIST_DETAILS_TITLE',
+                                                        name : 'alfresco/renderers/Property',
+                                                        config : {
+                                                            // TODO Define (dynamic) CSS class
+                                                            style : 'margin-left: 2ex;',
+                                                            propertyToRender : 'properties.cm:title',
+                                                            renderSize : 'medium',
+                                                            renderedValuePrefix : '(',
+                                                            renderedValueSuffix : ')',
+                                                            renderFilter : [ {
+                                                                property : 'properties.cm:title',
+                                                                renderOnAbsentProperty : false,
+                                                                values : [ '' ],
+                                                                negate : true
+                                                            } ]
+                                                        }
+                                                    }, {
+                                                        id : 'BTTM_TREE_LIST_DETAILS_MODIFIED_DATE',
+                                                        name : "alfresco/renderers/Date",
+                                                        config : {
+                                                            renderOnNewLine : true,
+                                                            modifiedDateProperty : 'modified',
+                                                            modifiedByProperty : 'modifierDisplayName'
+                                                        }
+                                                    }, {
+                                                        id : 'BTTM_TREE_LIST_DETAILS_ARCHIVED_DATE',
+                                                        name : "alfresco/renderers/Date",
+                                                        config : {
+                                                            renderOnNewLine : true,
+                                                            modifiedDateProperty : 'archived',
+                                                            modifiedByProperty : 'archiverDisplayName',
+                                                            modifiedByMessage : 'details.archived-by'
+                                                        }
+                                                    } ]
+                                                }
+                                            } ]
+                                        }
+                                    }, {
+                                        id : 'BTTM_TREE_LIST_ACTIONS_CELL',
+                                        name : 'alfresco/lists/views/layouts/Cell',
+                                        config : {
+                                            widgets : [ {
+                                                id : 'BTTM_TREE_LIST_ACTIONS',
+                                                name : 'alfresco/renderers/Actions',
+                                                config : {
+                                                    // TODO Report enhancement - make size of Actions configurable (it is frigging huge)
+                                                    // TODO Report enhancement - Actions should allow providing custom actions like the
+                                                    // pre-defined action widgets (currently customActions are mapped into AlfMenuItem
+                                                    // dropping some options and adding some non-suppressable ones)
+                                                    customActions : []
+                                                }
+                                            } ]
+                                        }
+                                    } ]
+                                }
+                            } ]
+                        }
+                    } ],
+                    // TODO Report enhancement - layout of AlfList (and sub-modules) should allow for consistent padding to stop views
+                    // clinging to the edge while not forcing i.e. filter form to have an even larger inset than by default
+                    style : 'padding: 0 10px;'
+                }
+            } ]
+        }
+    };
+
+    return model;
+}
+
+/* exported buildPageWidgets */
+function buildPageWidgets()
+{
+    var model, searchPanel, hierarchyPanel;
+
+    searchPanel = buildSearchPanel();
+    searchPanel.title = 'trash-browser.tab.search.title';
+    searchPanel.selected = true;
+
+    hierarchyPanel = buildHierarchyPanel();
+    hierarchyPanel.title = 'trash-browser.tab.hierarchy.title';
+    hierarchyPanel.selected = false;
+    hierarchyPanel.disabled = true;
+
+    model = {
+        id : 'BTTM_TABS',
+        name : 'alfresco/layout/AlfTabContainer',
+        config : {
+            widgets : [ searchPanel, hierarchyPanel ],
+            tabSelectionTopic : 'TRASH-BROWSER-SELECT-TAB',
+            tabDisablementTopic : 'TRASH-BROWSER-DISABLE-TAB'
+        }
+    };
     return model;
 }

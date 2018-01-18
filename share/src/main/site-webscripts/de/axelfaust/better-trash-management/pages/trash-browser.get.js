@@ -10,7 +10,7 @@ function main()
     widgets = getHeaderModel(msg.get('better-trash-management.trash-browser.page.title'));
 
     augmentServices(services);
-    widgets.push(buildMainPanel());
+    widgets.push(buildPageWidgets());
     
     model.jsonModel = getFooterModel(services, widgets);
     model.jsonModel.groupMemberships = user.properties.alfUserGroups;

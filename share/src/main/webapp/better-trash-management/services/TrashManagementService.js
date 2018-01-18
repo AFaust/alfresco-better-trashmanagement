@@ -11,11 +11,83 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
         {
             return declare([ BaseService, CoreXhr ], {
 
-                QUERY_ARCHIVED_ITEMS : 'BETTER_TRASH_MANAGEMENT_QUERY_ARCHIVED_ITEMS',
+                pubChainTopic : 'BETTER_TRASH_MANAGEMENT_PUBLISH_CHAIN',
+
+                browseArchivedItemsTopic : 'BETTER_TRASH_MANAGEMENT_BROWSE_ARCHIVED_ITEMS',
+
+                queryArchivedItemsTopic : 'BETTER_TRASH_MANAGEMENT_QUERY_ARCHIVED_ITEMS',
 
                 registerSubscriptions : function betterTrashManagement_service_TrashManagementService__registerSubscriptions()
                 {
-                    this.alfSubscribe(this.QUERY_ARCHIVED_ITEMS, lang.hitch(this, this.onQueryArchivedItems));
+                    this.alfSubscribe(this.pubChainTopic, lang.hitch(this, this.onPublishChain));
+                    this.alfSubscribe(this.browseArchivedItemsTopic, lang.hitch(this, this.onBrowseArchivedItems));
+                    this.alfSubscribe(this.queryArchivedItemsTopic, lang.hitch(this, this.onQueryArchivedItems));
+                },
+
+                // TODO There should be a standard way to have a publication composed of multiple topics + payloads
+                onPublishChain : function betterTrashManagement_service_TrashManagementService__onPublishChain(payload)
+                {
+                    if (Array.isArray(payload.publications))
+                    {
+                        array.forEach(payload.publications,
+                                function betterTrashManagement_service_TrashManagementService__onPublishChain_forEach(publication)
+                                {
+                                    var publishPayload = {};
+                                    if (publication.publishTopic)
+                                    {
+                                        if (publication.publishPayload)
+                                        {
+                                            publishPayload = lang.clone(publication.publishPayload);
+                                            publishPayload.responseScope = payload.alfResponseScope;
+                                        }
+                                        this.alfPublish(publication.publishTopic, publishPayload, true, false, publication.publishScope);
+                                    }
+                                }, this);
+                    }
+                },
+
+                onBrowseArchivedItems : function betterTrashManagement_service_TrashManagementService__onBrowseArchivedItems(payload)
+                {
+                    var url, config;
+
+                    if (payload.nodeRef)
+                    {
+
+                        url = Constants.PROXY_URI + 'api/better-trash-management/';
+                        url += encodeURI(payload.nodeRef.replace(/:?\/+/g, '/'));
+                        url += '/children';
+
+                        if (payload.pageSize)
+                        {
+                            url = urlUtils.addQueryParameter(url, 'pageSize', payload.pageSize, true);
+                        }
+
+                        if (payload.page)
+                        {
+                            url = urlUtils.addQueryParameter(url, 'page', payload.page, true);
+                        }
+
+                        if (payload.page && payload.pageSize)
+                        {
+                            var startIndex = (payload.page - 1) * payload.pageSize;
+                            url = urlUtils.addQueryParameter(url, 'startIndex', startIndex, true);
+                        }
+
+                        config = {
+                            preventCache : true,
+                            url : url,
+                            requestScope : payload.alfResponseScope,
+                            alfTopic : payload.alfResponseTopic || this.browseArchivedItemsTopic,
+                            method : 'GET'
+                        };
+
+                        this.serviceXhr(config);
+                    }
+                    else
+                    {
+                        this.alfPublish((payload.alfResponseTopic || this.browseArchivedItemsTopic) + '_FAILURE', {}, false, false,
+                                payload.alfResponseScope);
+                    }
                 },
 
                 onQueryArchivedItems : function betterTrashManagement_service_TrashManagementService__onQueryArchivedItems(payload)
@@ -93,7 +165,7 @@ define([ 'dojo/_base/declare', 'alfresco/services/BaseService', 'alfresco/core/C
                         preventCache : true,
                         url : url,
                         requestScope : payload.alfResponseScope,
-                        alfTopic : payload.alfResponseTopic || null,
+                        alfTopic : payload.alfResponseTopic || this.queryArchivedItemsTopic,
                         method : 'GET'
                     };
 
