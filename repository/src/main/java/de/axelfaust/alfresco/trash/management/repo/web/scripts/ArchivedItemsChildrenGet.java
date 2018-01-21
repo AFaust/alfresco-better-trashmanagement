@@ -18,6 +18,7 @@ package de.axelfaust.alfresco.trash.management.repo.web.scripts;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.QueryConsistency;
@@ -67,7 +68,8 @@ public class ArchivedItemsChildrenGet extends AbstractArchivedItemsRetrievalWebS
         NodeRef currentNode = node;
         while (currentNode != null && !this.nodeService.hasAspect(currentNode, ContentModel.ASPECT_ARCHIVED))
         {
-            currentNode = this.nodeService.getPrimaryParent(node).getParentRef();
+            final ChildAssociationRef primaryParent = this.nodeService.getPrimaryParent(currentNode);
+            currentNode = primaryParent != null ? primaryParent.getParentRef() : null;
         }
 
         if (currentNode == null)

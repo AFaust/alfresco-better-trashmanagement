@@ -65,6 +65,8 @@ function buildListResultWidgets(idPrefix)
                         name : 'alfresco/lists/views/layouts/Cell',
                         config : {
                             additionalCssClasses : 'smallpad',
+                            // we know Selector is 20px + 2x4px for smallpad
+                            width : '30px',
                             widgets : [ {
                                 name : 'alfresco/renderers/Selector',
                                 itemKey : 'nodeRef',
@@ -77,6 +79,8 @@ function buildListResultWidgets(idPrefix)
                         name : 'alfresco/lists/views/layouts/Cell',
                         config : {
                             additionalCssClasses : 'smallpad',
+                            // we know Thumbnail is 100px + 2x4px for smallpad
+                            width : '110px',
                             widgets : [
                             // need to use separate configs for folder vs document/node
                             // if usePreviewService is set the widget will not handle publication
@@ -88,6 +92,8 @@ function buildListResultWidgets(idPrefix)
                                     imageTitleProperty : 'name',
                                     publishTopic : 'BETTER_TRASH_MANAGEMENT_PUBLISH_CHAIN',
                                     publishGlobal : true,
+                                    publishPayloadType : 'PROCESS',
+                                    publishPayloadModifiers : [ 'processCurrentItemTokens' ],
                                     useCurrentItemAsPayload : false,
                                     publishPayload : {
                                         publications : [ {
@@ -96,6 +102,13 @@ function buildListResultWidgets(idPrefix)
                                             publishPayload : {
                                                 value : false,
                                                 id : 'BTTM_TREE'
+                                            }
+                                        }, {
+                                            publishTopic : 'TRASH_TREE_LIST/BETTER_TRASH_MANAGEMENT_SET_PARENT',
+                                            publishGlobal : true,
+                                            publishPayload : {
+                                                name : 'nodeRef',
+                                                value : '{nodeRef}'
                                             }
                                         } ]
                                     },
@@ -142,6 +155,8 @@ function buildListResultWidgets(idPrefix)
                                             renderSize : 'large',
                                             publishTopic : 'BETTER_TRASH_MANAGEMENT_PUBLISH_CHAIN',
                                             publishGlobal : true,
+                                            publishPayloadType : 'PROCESS',
+                                            publishPayloadModifiers : [ 'processCurrentItemTokens' ],
                                             useCurrentItemAsPayload : false,
                                             publishPayload : {
                                                 publications : [ {
@@ -150,6 +165,13 @@ function buildListResultWidgets(idPrefix)
                                                     publishPayload : {
                                                         value : false,
                                                         id : 'BTTM_TREE'
+                                                    }
+                                                }, {
+                                                    publishTopic : 'TRASH_TREE_LIST/BETTER_TRASH_MANAGEMENT_SET_PARENT',
+                                                    publishGlobal : true,
+                                                    publishPayload : {
+                                                        name : 'nodeRef',
+                                                        value : '{nodeRef}'
                                                     }
                                                 } ]
                                             },
@@ -221,6 +243,9 @@ function buildListResultWidgets(idPrefix)
                         id : idPrefix + '_ACTIONS_CELL',
                         name : 'alfresco/lists/views/layouts/Cell',
                         config : {
+                            // we know Actions should be ~105px + 2x4px for smallpad
+                            // due to block-nature, cell/column will expand if Actions is actually larger due to i18n
+                            width : '115px',
                             widgets : [ {
                                 id : idPrefix + '_ACTIONS',
                                 name : 'alfresco/renderers/Actions',
@@ -276,6 +301,13 @@ function buildSearchPanel()
                                 name : 'alfresco/documentlibrary/AlfSelectDocumentListItems'
                             } ],
                             widgetsAfter : [ {
+                                id : 'BTTM_SEARCH_LIST_PAGINATOR_RELOADER',
+                                name : 'alfresco/menus/AlfMenuBarItem',
+                                config : {
+                                    label : 'trash-browser.paginator.reload.label',
+                                    publishTopic : 'RELOAD_TRASH_ITEMS'
+                                }
+                            }, {
                                 id : 'BTTM_SEARCH_LIST_PAGINATOR_SELECTED_ITEMS',
                                 name : 'alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup',
                                 config : {
@@ -367,7 +399,7 @@ function buildSearchPanel()
                             } ],
                             usePagination : true,
                             currentPageSize : 20,
-                            itemsProperty : 'items', // TODO Set to whatever we get back from a service
+                            itemsProperty : 'items',
                             widgets : buildListResultWidgets('BTTM_SEARCH_LIST'),
                             // TODO Report enhancement - layout of AlfList (and sub-modules) should allow for consistent padding to stop
                             // views clinging to the edge while not forcing i.e. filter form to have an even larger inset than by default
@@ -401,6 +433,13 @@ function buildHierarchyPanel()
                         name : 'alfresco/documentlibrary/AlfSelectDocumentListItems'
                     } ],
                     widgetsAfter : [ {
+                        id : 'BTTM_TREE_LIST_PAGINATOR_RELOADER',
+                        name : 'alfresco/menus/AlfMenuBarItem',
+                        config : {
+                            label : 'trash-browser.paginator.reload.label',
+                            publishTopic : 'RELOAD_TRASH_ITEMS'
+                        }
+                    }, {
                         id : 'BTTM_TREE_LIST_PAGINATOR_SELECTED_ITEMS',
                         name : 'alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup',
                         config : {
@@ -410,9 +449,18 @@ function buildHierarchyPanel()
                             label : 'trash-browser.paginator.selected-items.label',
                             passive : false,
                             itemKeyProperty : 'nodeRef',
-                            widgets : [
-                            // TODO bulk actions
-                            ]
+                            widgets : [ {
+                                name : 'alfresco/menus/AlfSelectedItemsMenuItem',
+                                config : {
+                                    label : 'trash-browser.action.delete.label',
+                                    iconClass : 'alf-delete-icon',
+                                    publishTopic : 'BETTER_TRASH_MANAGEMENT_DELETE_ARCHIVED_ITEMS',
+                                    publishGlobal : true,
+                                    publishPayload : {
+                                        successTopic : 'RELOAD_TRASH_ITEMS'
+                                    }
+                                }
+                            } ]
                         }
                     } ]
                 }
@@ -421,16 +469,12 @@ function buildHierarchyPanel()
                 name : 'alfresco/lists/AlfSortablePaginatedList',
                 config : {
                     reloadDataTopic : 'RELOAD_TRASH_ITEMS',
-                    // TODO
                     loadDataPublishTopic : 'BETTER_TRASH_MANAGEMENT_BROWSE_ARCHIVED_ITEMS',
-                    loadDataPublishPayload : {
-
-                    // TODO Fill with whatever the service needs
-                    },
-                    filteringTopics : [],
+                    loadDataPublishPayload : {},
+                    filteringTopics : [ 'BETTER_TRASH_MANAGEMENT_SET_PARENT' ],
                     usePagination : true,
                     currentPageSize : 20,
-                    itemsProperty : 'items', // TODO Set to whatever we get back from a service
+                    itemsProperty : 'items',
                     widgets : buildListResultWidgets('BTTM_TREE_LIST'),
                     // TODO Report enhancement - layout of AlfList (and sub-modules) should allow for consistent padding to stop views
                     // clinging to the edge while not forcing i.e. filter form to have an even larger inset than by default

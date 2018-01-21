@@ -56,13 +56,29 @@ define(
                         onBrowseArchivedItems : function betterTrashManagement_service_TrashManagementService__onBrowseArchivedItems(
                                 payload)
                         {
-                            var url, config, uuid;
+                            var nodeRef, url, config, uuid;
 
                             if (payload.nodeRef)
                             {
+                                nodeRef = payload.nodeRef;
+                            }
+                            else if (payload.dataFilters && lang.isArray(payload.dataFilters))
+                            {
+                                array.forEach(payload.dataFilters, function(filter)
+                                {
+                                    switch (filter.name)
+                                    {
+                                        case 'nodeRef':
+                                            nodeRef = filter.value;
+                                            break;
+                                    }
+                                });
+                            }
 
+                            if (nodeRef)
+                            {
                                 url = Constants.PROXY_URI + 'api/better-trash-management/archivedItems/';
-                                url += encodeURI(payload.nodeRef.replace(/:?\/+/g, '/'));
+                                url += encodeURI(nodeRef.replace(/:?\/+/g, '/'));
                                 url += '/children';
 
                                 if (payload.pageSize)
@@ -98,7 +114,8 @@ define(
                             }
                             else
                             {
-                                this.alfPublish((payload.alfResponseTopic || this.browseArchivedItemsTopic) + '_FAILURE', {}, false, false,
+                                this.alfPublish(payload.failureTopic
+                                        || ((payload.alfResponseTopic || this.browseArchivedItemsTopic) + '_FAILURE'), {}, false, false,
                                         payload.alfResponseScope);
                             }
                         },

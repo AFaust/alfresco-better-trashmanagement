@@ -215,51 +215,55 @@ public abstract class AbstractArchivedItemsRetrievalWebScript extends Declarativ
 
         final StringBuilder displayPathBuilder = new StringBuilder(1024);
 
-        final NodeRef previousNode = result;
-        while (archiver == null)
+        NodeRef previousNode = result;
+        while (archiver == null && previousNode != null)
         {
             final ChildAssociationRef primaryParent = this.nodeService.getPrimaryParent(previousNode);
-            if (primaryParent == null)
+            final NodeRef parentRef;
+            if (primaryParent != null)
             {
-                break;
-            }
+                parentRef = primaryParent.getParentRef();
+                final AccessStatus parentReadAccess = this.permissionService.hasPermission(parentRef, PermissionService.READ);
 
-            final NodeRef parentRef = primaryParent.getParentRef();
-            final AccessStatus parentReadAccess = this.permissionService.hasPermission(parentRef, PermissionService.READ);
+                final Map<QName, Serializable> archivedItemProperties;
+                final String parentName;
 
-            final Map<QName, Serializable> archivedItemProperties;
-            final String parentName;
+                if (parentReadAccess == AccessStatus.ALLOWED)
+                {
+                    archivedItemProperties = this.nodeService.getProperties(parentRef);
+                    parentName = DefaultTypeConverter.INSTANCE.convert(String.class, archivedItemProperties.get(ContentModel.PROP_NAME));
+                }
+                else
+                {
+                    archivedItemProperties = AuthenticationUtil.runAsSystem(() -> {
+                        final Map<QName, Serializable> properties;
+                        if (this.nodeService.hasAspect(parentRef, ContentModel.ASPECT_ARCHIVED))
+                        {
+                            properties = this.nodeService.getProperties(parentRef);
+                        }
+                        else
+                        {
+                            properties = Collections.emptyMap();
+                        }
+                        return properties;
+                    });
 
-            if (parentReadAccess == AccessStatus.ALLOWED)
-            {
-                archivedItemProperties = this.nodeService.getProperties(parentRef);
-                parentName = DefaultTypeConverter.INSTANCE.convert(String.class, archivedItemProperties.get(ContentModel.PROP_NAME));
+                    parentName = primaryParent.getQName().getLocalName();
+                }
+
+                archiver = DefaultTypeConverter.INSTANCE.convert(String.class, archivedItemProperties.get(ContentModel.PROP_ARCHIVED_BY));
+                archivedOn = DefaultTypeConverter.INSTANCE.convert(Date.class, archivedItemProperties.get(ContentModel.PROP_ARCHIVED_DATE));
+                originalParentAssoc = DefaultTypeConverter.INSTANCE.convert(ChildAssociationRef.class,
+                        archivedItemProperties.get(ContentModel.PROP_ARCHIVED_ORIGINAL_PARENT_ASSOC));
+
+                displayPathBuilder.insert(0, parentName);
+                displayPathBuilder.insert(0, '/');
             }
             else
             {
-                archivedItemProperties = AuthenticationUtil.runAsSystem(() -> {
-                    final Map<QName, Serializable> properties;
-                    if (this.nodeService.hasAspect(parentRef, ContentModel.ASPECT_ARCHIVED))
-                    {
-                        properties = this.nodeService.getProperties(parentRef);
-                    }
-                    else
-                    {
-                        properties = Collections.emptyMap();
-                    }
-                    return properties;
-                });
-
-                parentName = primaryParent.getQName().getLocalName();
+                parentRef = null;
             }
-
-            archiver = DefaultTypeConverter.INSTANCE.convert(String.class, archivedItemProperties.get(ContentModel.PROP_ARCHIVED_BY));
-            archivedOn = DefaultTypeConverter.INSTANCE.convert(Date.class, archivedItemProperties.get(ContentModel.PROP_ARCHIVED_DATE));
-            originalParentAssoc = DefaultTypeConverter.INSTANCE.convert(ChildAssociationRef.class,
-                    archivedItemProperties.get(ContentModel.PROP_ARCHIVED_ORIGINAL_PARENT_ASSOC));
-
-            displayPathBuilder.insert(0, parentName);
-            displayPathBuilder.insert(0, '/');
+            previousNode = parentRef;
         }
 
         Map<String, Object> modifierObj = userObjByUserName.get(modifier);
