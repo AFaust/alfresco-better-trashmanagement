@@ -4,23 +4,22 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsQuery.get" class="${project.artifactId}.web.scripts.ArchivedItemsQueryGet"
-        parent="webscript">
-        <property name="namespaceService" ref="NamespaceService" />
+    <bean id="${project.artifactId}-abstractRetrievalWebScript" abstract="true" parent="webscript">
         <property name="nodeService" ref="NodeService" />
-        <!-- Sorry, no public bean for you -->
-        <property name="nodeArchiveService" ref="nodeArchiveService" />
         <property name="personService" ref="PersonService" />
         <property name="searchService" ref="SearchService" />
         <property name="permissionService" ref="PermissionService" />
     </bean>
-    
-    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsChildren.get" class="${project.artifactId}.web.scripts.ArchivedItemsChildrenGet"
-        parent="webscript">
-        <property name="nodeService" ref="NodeService" />
-        <property name="personService" ref="PersonService" />
-        <property name="searchService" ref="SearchService" />
+
+    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsQuery.get" class="${project.artifactId}.web.scripts.ArchivedItemsQueryGet"
+        parent="${project.artifactId}-abstractRetrievalWebScript">
+        <property name="namespaceService" ref="NamespaceService" />
+        <!-- Sorry, no public bean for you -->
+        <property name="nodeArchiveService" ref="nodeArchiveService" />
     </bean>
+
+    <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsChildren.get" class="${project.artifactId}.web.scripts.ArchivedItemsChildrenGet"
+        parent="${project.artifactId}-abstractRetrievalWebScript" />
 
     <bean id="webscript.de.axelfaust.better-trash-management.archivedItemsDelete.post" class="${project.artifactId}.web.scripts.ArchivedItemsDelete"
         parent="baseArchivedNodeWebScript" />

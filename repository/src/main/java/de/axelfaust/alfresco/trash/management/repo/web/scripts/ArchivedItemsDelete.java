@@ -1,6 +1,20 @@
+/*
+ * Copyright 2018 Axel Faust
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.axelfaust.alfresco.trash.management.repo.web.scripts;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,85 +24,78 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.web.scripts.archive.AbstractArchivedNodeWebScript;
 import org.alfresco.repo.web.scripts.archive.ArchivedNodesDelete;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-public class ArchivedItemsDelete extends AbstractArchivedNodeWebScript 
+/**
+ *
+ * @author Jonas van Malders
+ * @author Ana Gouveia
+ * @author Axel Faust, <a href="http://acosix.de">Acosix GmbH</a>
+ */
+public class ArchivedItemsDelete extends AbstractArchivedNodeWebScript
 {
-    private static Log log = LogFactory.getLog(ArchivedItemsDelete.class);
 
-	@Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache)
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchivedItemsDelete.class);
+
+    /**
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected Map<String, Object> executeImpl(final WebScriptRequest req, final Status status, final Cache cache)
     {
-        Map<String, Object> model = new HashMap<String, Object>();
-        
-        // Current user
-        String userID = AuthenticationUtil.getFullyAuthenticatedUser();
-        if (userID == null)
+        final Map<String, Object> model = new HashMap<>();
+
+        final Object parsedContent = req.parseContent();
+        if (!(parsedContent instanceof JSONObject))
         {
-            throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Web Script ["
-                        + req.getServiceMatch().getWebScript().getDescription()
-                        + "] requires user authentication.");
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "No or invalid request data provided - only JSON data is supported");
         }
-        
-        JSONParser parser = new JSONParser();
-        JSONArray jsonList;
-		try 
-		{
-			jsonList = (JSONArray)parser.parse(req.getContent().getContent());
-		} 
-		catch (ParseException | IOException e) 
-		{
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Could not parse the JSON body of the request");
-		}
-		if (jsonList == null || jsonList.isEmpty())
-		{
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Empty or no node references provided");
-		}
-        
-        List<NodeRef> nodesToBePurged = new ArrayList<NodeRef>();
-        for(Object listElement : jsonList)
+
+        final List<NodeRef> nodesToBePurged = new ArrayList<>();
+        try
         {
-        	if (listElement != null && listElement instanceof JSONObject)
-			{
-        		JSONObject jsonObject = (JSONObject)listElement;
-        		String nodeRefString = (String)jsonObject.get("nodeRef");
-        		if(nodeRefString != null && NodeRef.isNodeRef(nodeRefString))
-        		{
-        			NodeRef nodeRef = new NodeRef(nodeRefString);
-            		if (nodeRef != null)
-                    {
-                        // check if the current user has the permission to purge the node
-                        validatePermission(nodeRef, userID);
-                        
-                        // If there is a specific NodeRef, then that is the only Node that should be purged.
-                        // In this case, the NodeRef points to the actual node to be purged i.e. the node in
-                        // the archive store.
-                        nodesToBePurged.add(nodeRef);
-                    }
-        		}
-			}
+            final JSONObject rq = (JSONObject) parsedContent;
+            final JSONArray nodes = rq.getJSONArray("nodes");
+
+            for (int slot = 0; slot < nodes.length(); slot++)
+            {
+                final String nodeRefStr = nodes.getString(slot);
+                if (nodeRefStr != null && NodeRef.isNodeRef(nodeRefStr))
+                {
+                    final NodeRef nodeRef = new NodeRef(nodeRefStr);
+
+                    // check if the current user has the permission to purge the node
+                    this.validatePermission(nodeRef, AuthenticationUtil.getRunAsUser());
+
+                    // If there is a specific NodeRef, then that is the only Node that should be purged.
+                    // In this case, the NodeRef points to the actual node to be purged i.e. the node in
+                    // the archive store.
+                    nodesToBePurged.add(nodeRef);
+                }
+            }
         }
-        
-        
-        if (log.isDebugEnabled())
+        catch (final JSONException jsonEx)
         {
-            log.debug("Purging " + nodesToBePurged.size() + " nodes");
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid request JSON data", jsonEx);
         }
-        
+
+        LOGGER.debug("Purging {} nodes", nodesToBePurged.size());
+        LOGGER.trace("Purging nodes {}", nodesToBePurged);
+
         // Now having identified the nodes to be purged, we simply have to do it.
-        nodeArchiveService.purgeArchivedNodes(nodesToBePurged);
-	
+        this.nodeArchiveService.purgeArchivedNodes(nodesToBePurged);
+
         model.put(ArchivedNodesDelete.PURGED_NODES, nodesToBePurged);
-        
+
         return model;
-    }	
+    }
 }

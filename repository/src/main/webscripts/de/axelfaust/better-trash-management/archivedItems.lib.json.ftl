@@ -31,8 +31,8 @@
             "properties": {
                 <#assign lastRendered = false />
                 <#list node.properties?keys as key>
-                    <#if node.properties[key]??><#if lastRendered == true>,</#if>
-                        "${shortQName(key)}" : <@renderProperty key node.properties[key] />
+                    <#if node.properties[key]??>
+                        <#if lastRendered == true>,</#if>"${shortQName(key)}" : <@renderProperty key node.properties[key] />
                     <#assign lastRendered = true />
                 <#else>
                     <#assign lastRendered = false />
